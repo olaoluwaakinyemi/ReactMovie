@@ -5,9 +5,7 @@ import Favorites from "./pages/Favorites";
 import NavBar from "./components/NavBar";
 import { MovieProvider } from "./contexts/MovieContext";
 
-export function App() {
-  const movienumber = 1;
-
+function App() {
   return (
     <MovieProvider>
       <NavBar />
@@ -20,4 +18,5 @@ export function App() {
     </MovieProvider>
   );
 }
+
 export default App;
