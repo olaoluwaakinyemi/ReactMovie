@@ -1,53 +1,20 @@
 import MovieCard from "../components/MovieCard";
-import { useState, useEffect } from "react";
-import { searchMovies, getPopularMovies } from "../services/api.js";
+import { useState } from "react";
+import { useMovieContext } from "../contexts/MovieContext";
 import "../css/Home.css";
 
 function Home() {
+  const { movies, loading, error, handleSearch } = useMovieContext();
   const [searchQuery, setSearchQuery] = useState("");
-  const [movies, setMovies] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
 
-  // Load popular movies on page load
-  useEffect(() => {
-    const loadPopularMovies = async () => {
-      setLoading(true);
-      try {
-        const popularMovies = await getPopularMovies();
-        setMovies(popularMovies);
-        setError(null);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load popular movies");
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadPopularMovies();
-  }, []);
-
-  // Handle search
-  const handleSearch = async (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
-
-    setLoading(true);
-    try {
-      const searchResults = await searchMovies(searchQuery);
-      setMovies(searchResults);
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to search movies");
-    } finally {
-      setLoading(false);
-    }
+    handleSearch(searchQuery);
   };
 
   return (
     <div className="home">
-      <form onSubmit={handleSearch} className="search-form">
+      <form onSubmit={onSubmit} className="search-form">
         <input
           type="text"
           placeholder="Search for movies..."
@@ -61,16 +28,17 @@ function Home() {
       </form>
 
       {error && <div className="error-message">{error}</div>}
+
       {loading ? (
-        <div className="loading">Loading....</div>
-      ) : (
+        <div className="loading">Loading...</div>
+      ) : movies && movies.length > 0 ? (
         <div className="movies-grid">
-          {movies.length > 0 ? (
-            movies.map((movie) => <MovieCard movie={movie} key={movie.id} />)
-          ) : (
-            <p>No movies found</p>
-          )}
+          {movies.map((movie) => (
+            <MovieCard movie={movie} key={movie.id} />
+          ))}
         </div>
+      ) : (
+        <p>No movies found.</p>
       )}
     </div>
   );
